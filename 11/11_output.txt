@@ -1,0 +1,30 @@
+[1, 2, 3, 4, 5]
+
+================= RESTART: C:\Users\user\Desktop\Mongo\nosql.py ================
+Bismiya 9446639562 not vaccinated
+
+
+================= RESTART: C:\Users\user\Desktop\Mongo\nosql.py ================
+Vivek 8582639777
+Anuradha 9992639562
+
+
+================= RESTART: C:\Users\user\Desktop\Mongo\nosql.py ================
+1 Anjali MCA
+2 Anuradha Civil
+
+
+================= RESTART: C:\Users\user\Desktop\Mongo\nosql.py ================
+1  documents updated 
+
+
+================= RESTART: C:\Users\user\Desktop\Mongo\nosql.py ================
+Vivek 8582639777
+Anuradha 9992639562
+Anjali 2582639562
+Vimal 8582639568
+Bismiya 9446639562
+
+
+================= RESTART: C:\Users\user\Desktop\Mongo\nosql.py ================
+1  documents deleted 

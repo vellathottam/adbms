@@ -1,0 +1,35 @@
+
+11.HOSPITAL DATABASE APPLICATION
+
+1)  a.create table Patient(patient_no int PRIMARY KEY,name varchar(11),dob date,age int,place varchar(14));
+
+    b.create table Doctor(doctor_id int PRIMARY KEY,specialization varchar(20),salary int);
+
+    c.create table Treatment(patient_no int references Patient,doctor_id int references Doctor,fromdate date,todate date);
+
+i)  1.select * from patient where patient_no in(select patient_no from treatment where doctor_id in(select doctor_id from doctor where salary in(select max(salary) from doctor)));
+
+    2.select doctor_id,specialization from doctor where doctor_id in(select doctor_id from treatment where fromdate>='03-jun-2022'and todate<='03-oct-2022');
+
+    3.select * from patient where patient_no in(select patient_no from treatment where todate>='01-aug-2022'and todate<='31-aug-2022');
+
+
+
+ii) 1.create or replace trigger delpatient before delete on patient
+      for each row
+      begin
+      if :old.dob >'01-jan-1910' then
+      raise_application_error(-20101, 'not possible');
+      end if;
+      end;
+      /
+
+    2.create or replace trigger updoctor before update on doctor
+      for each row
+      begin
+      if :old.specialization !='pediatric' then
+      raise_application_error(-20101, 'updation not possible');
+      end if;
+      end;
+      /
+

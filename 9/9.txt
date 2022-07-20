@@ -1,0 +1,188 @@
+SQL> create table student(ssn varchar(6) primary key,name varchar(20),major varchar(30),bdate date);
+
+Table created.
+
+SQL> create table course(coursenumber varchar(6) primary key,coursename varchar(25),department varchar(25));
+
+Table created.
+
+SQL> create table enroll(ssn varchar(6) references student(ssn),coursenumber varchar(6) references course(coursenumber),quarter number(1),grade number(1));
+
+Table created.
+
+SQL> create table text(book_isbn varchar(20) primary key,book_title varchar(30),publisher varchar2(30),author varchar(30));
+
+Table created.
+
+SQL> create table book(coursenumber varchar2(20) references course(coursenumber),quarter number(2),book_isbn varchar(20) references text(book_isbn));
+
+Table created.
+
+SQL> insert into student values('s1','Akshay','major','10-FEB-1990');
+
+1 row created.
+
+SQL>  insert into student values('s2','Joe','major','01-APR-1991');
+
+1 row created.
+
+SQL> insert into student values('s3','Jibin','major','20-DEC-1989');
+
+1 row created.
+
+SQL>  insert into student values('s5','Anuja','major','19-SEP-1990');
+
+1 row created.
+
+SQL> insert into course values('c101','btech','cs');
+
+1 row created.
+
+SQL>  insert into course values('c102','bhm','HK');
+
+1 row created.
+
+SQL> insert into course values('c103','PG','MCA');
+
+1 row created.
+
+SQL> insert into enroll values('s1','c102',2,3);
+
+1 row created.
+
+SQL> insert into enroll values('s2','c101',1,2);
+
+1 row created.
+
+SQL> insert into enroll values('s5','c103',4,1);
+
+1 row created.
+
+SQL> insert into text values('b1','Database','Hudson plb','Jain');
+
+1 row created.
+
+SQL>  insert into text values('b2','Java 2','Pearson','Herbict');
+
+1 row created.
+
+SQL> insert into text values('b4','OOPS','Hardy','Dwayne');
+
+1 row created.
+
+SQL> insert into text values('b7','OOP with c++','Pearson','Balaguru');
+
+1 row created.
+
+SQL> insert into text values('b9','Operating system','Pearson','Allan morge');
+
+1 row created.
+
+SQL> insert into book values('c101',1,'b2');
+
+1 row created.
+
+SQL> insert into book values('c101',1,'b7');
+
+1 row created.
+
+SQL> insert into book values('c101',2,'b9');
+
+1 row created.
+
+SQL> insert into book values('c103',2,'b1');
+
+1 row created.
+
+SQL> insert into book values('c103',4,'b2');
+
+1 row created.
+
+SQL> set serveroutput on
+SQL> declare
+  2  numberOfCourses number(5);
+  3  begin
+  4  select count(distinct coursenumber) into numberOfCOurses from student, enroll
+  5  where student.ssn = enroll.ssn and quarter = 1 and name like 'JOE%';
+  6  dbms_output.put_line('Number of courses taken by all students named Joe in quarter 1 is' || numberOfCourses);
+  7  end;
+  8  /
+Number of courses taken by all students named Joe in quarter 1 is0
+
+PL/SQL procedure successfully completed.
+
+SQL> declare
+  2  cursor cursor1 is select DISTINCT coursenumber, a.book_isbn, book_title
+  3   from book a, text b
+  4   where a.book_isbn = b.book_isbn and
+  5  coursenumber in (
+  6  select a.coursenumber
+  7  from course a, text b, book c where
+  8  a.coursenumber = c.coursenumber and
+  9  b.book_isbn = c.book_isbn and
+ 10  a.department like 'Computer Science'
+ 11  group by a.coursenumber having count(distinct b.book_isbn)>2);
+ 12  row1 cursor1%ROWTYPE;
+ 13  begin
+ 14  dbms_output.put_line('COURSENUMBER BOOK_ISBN BOOK_TITLE');
+ 15  for row1 in cursor1
+ 16  loop
+ 17  dbms_output.put_line(row1.coursenumber || ' ' || row1.book_isbn || '' || row1.book_title);
+ 18  end loop;
+ 19  end;
+ 20  /
+COURSENUMBER  BOOK_ISBN  BOOK_TITLE
+c101 	b9	 Operating system
+c101 	b2	 Java 2
+c101 	b7 	 OOP with C++
+
+PL/SQL procedure successfully completed.
+
+SQL> declare
+  2  cursor cursor1 is select a.department, count(distinct b.book_isbn) as num from course a,
+  3  book b
+  4  where a.coursenumber = b.coursenumber group by department;
+  5  cursor cursor2 is select department, count(distinct b.book_isbn) as num from course a, book
+  6  b, text c
+  7  where a.coursenumber = b.coursenumber and
+  8  c.book_isbn = b.book_isbn and
+  9  publisher like 'Pearson' group by department;
+ 10  row1 cursor1%ROWTYPE;
+ 11  row2 cursor2%ROWTYPE;
+ 12  begin
+ 13  open cursor2;
+ 14  for row1 in cursor1
+ 15  loop
+ 16  fetch cursor2 into row2;
+ 17  if(row1.department = row2.department) then
+ 18  if(row1.num = row2.num) then
+ 19  dbms_output.put_line(row1.department);
+ 20  end if;
+ 21  end if;
+ 22  end loop;
+ 23  end;
+ 24  /
+cs
+
+PL/SQL procedure successfully completed.
+
+SQL> create or replace trigger print_book_title
+  2  before update on text
+  3  for each row
+  4  begin
+  5  if(:old.book_isbn <> :new.book_isbn) then
+  6  dbms_output.put_line('Book Title');
+  7  dbms_output.put_line('...................');
+  8  dbms_output.put_line(:old.book_title);
+  9  end if;
+ 10  end;
+ 11  /
+
+Trigger created.
+
+SQL> update text set book_isbn = 'b8' where book_isbn='b4';
+Book Title
+...................
+OOPS
+
+1 row updated.

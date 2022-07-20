@@ -1,0 +1,117 @@
+SQL> create table car (serialno number(6) primary key,model varchar2(10),manufacturer varchar2(10),price number(10));
+
+Table created.
+
+SQL> create table options(serialno references car(serialno),optionname varchar(10),price number(10));
+
+Table created.
+
+SQL> create table salesperson(salespersonid varchar(10) primary key,name varchar(20),phone number(10));
+
+Table created.
+
+SQL> create table sales(salespersonid varchar(10) references salesperson(salespersonid),serialno references car(serialno),sdate date,salesprice number(10));
+
+Table created.
+
+SQL> insert into car values(100001,'Alto','Maruthi',350025);
+
+1 row created.
+
+SQL> insert into car values(100002,'WagonR','Maruthi',401493);
+
+1 row created.
+
+SQL> insert into car values(100003,'Swift','Maruthi',783403);
+
+1 row created.
+
+SQL> insert into options values(100002,'Lxi',401493);
+
+1 row created.
+
+SQL> insert into options values(100002,'Vxi',451493);
+
+1 row created.
+
+SQL> insert into salesperson values('S1009','Joe',9995555555);
+
+1 row created.
+
+SQL> insert into salesperson values('S1010','Manoj',9995555556);
+
+1 row created.
+
+SQL> insert into sales values('S1010',100002,'12-May-2012',401493);
+
+1 row created.
+
+SQL> insert into sales values('S1009',100002,'12-May-2012',451493);
+
+1 row created.
+
+SQL> create or replace trigger sellprice
+  2  before update on car
+  3  FOR EACH ROW
+  4  declare
+  5  f number(10);
+  6  begin
+  7  if :old.price <> :new.price then
+  8  f:=:new.price - :old.price;
+  9  dbms_output.put_line('Change in price = '||f);
+ 10  end if;
+ 11  end;
+ 12  /
+
+Trigger created.
+
+SQL> set serveroutput on
+SQL> update car set price=350050 where serialno=100001;
+Change in price = 25
+
+1 row updated.
+
+SQL> declare
+  2  cursor scursor is select s.serialno,manufacturer,salesprice from car c,sales s, salesperson sp where
+  3  s.salespersonid=sp.salespersonid and sp.name='Joe'and s.serialno=c.serialno;
+  4  begin
+  5  for sval in scursor
+  6  loop
+  7  dbms_output.put_line(sval.serialno||' '||sval.manufacturer||' '||sval.salesprice);
+  8  end loop;
+  9  end;
+ 10  /
+100002 Maruthi 451493
+
+PL/SQL procedure successfully completed.
+
+SQL> declare
+  2  cursor scursor
+  3  is select serialno,model from car
+  4  where serialno not in (select serialno from options);
+  5  begin
+  6  for sval in scursor
+  7  loop
+  8  dbms_output.put_line(sval.serialno||' '||sval.model);
+  9  end loop;
+ 10  end;
+ 11  /
+100003 Swift
+100001 Alto
+
+PL/SQL procedure successfully completed.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

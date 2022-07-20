@@ -1,0 +1,51 @@
+SQL> select * from employee;
+
+     EMPID EMPNAME          SALARY       COMM
+---------- ------------ ---------- ----------
+     20765 Sam                5000       1500
+     20766 Pooja              4500        750
+     20767 Abhirami           4000       1050
+     20768 Richu              5600       1100
+
+SQL> set serveroutput on
+SQL> declare
+  2  n1 employee.empid%type;
+  3  sl employee.salary%type;
+  4  na employee.empname%type;
+  5  com employee.comm%type;
+  6  cursor c1 is select empid, empname, salary, comm from employee;
+  7  ts int;
+  8  begin
+  9  open c1;
+ 10  dbms_output.put_line('…………………');
+ 11  loop
+ 12  fetch c1 into n1,na,sl,com;
+ 13  exit when (c1%notfound);
+ 14  ts:=sl+nvl(com,0);
+ 15  dbms_output.put_line('empno' || to_char(n1));
+ 16  dbms_output.put_line('name' || na);
+ 17  dbms_output.put_line('total salary' || to_char(ts));
+ 18  dbms_output.put_line('…………………');
+ 19  end loop;
+ 20  close c1;
+ 21  end;
+ 22  /
+.......
+empno20765
+nameSam
+total salary6500
+.......
+empno20766
+namePooja
+total salary5250
+.......
+empno20767
+nameAbhirami
+total salary5050
+.......
+empno20768
+nameRichu
+total salary6700
+.......
+
+PL/SQL procedure successfully completed.
